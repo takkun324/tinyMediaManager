@@ -89,6 +89,7 @@ import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.images.Logo;
 import org.tinymediamanager.ui.movies.MoviePanel;
 import org.tinymediamanager.ui.moviesets.MovieSetPanel;
+import org.tinymediamanager.ui.panels.CollectionPanel;
 import org.tinymediamanager.ui.tvshows.TvShowPanel;
 
 import com.jgoodies.forms.factories.FormFactory;
@@ -116,6 +117,7 @@ public class MainWindow extends JFrame {
   private JPanel                      panelMovies;
   private JPanel                      panelMovieSets;
   private JPanel                      panelTvShows;
+  private JPanel                      panelCollection;
   private JPanel                      panelStatusBar;
 
   /**
@@ -180,8 +182,8 @@ public class MainWindow extends JFrame {
         }
         catch (Exception ex) {
           LOGGER.error("open filemanager", ex);
-          MessageManager.instance
-              .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+          MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":",
+              ex.getLocalizedMessage() }));
         }
       }
     });
@@ -359,46 +361,51 @@ public class MainWindow extends JFrame {
     // setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-    getContentPane().setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow"), ColumnSpec.decode("1dlu"), },
-        new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("fill:max(500px;default):grow"), FormFactory.NARROW_LINE_GAP_ROWSPEC,
+    getContentPane().setLayout(
+        new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow"), ColumnSpec.decode("1dlu"), }, new RowSpec[] {
+            FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("fill:max(500px;default):grow"), FormFactory.NARROW_LINE_GAP_ROWSPEC,
             FormFactory.DEFAULT_ROWSPEC, }));
 
     JLayeredPane content = new JLayeredPane();
-    content.setLayout(
-        new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow"), FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("right:270px"), },
-            new RowSpec[] { RowSpec.decode("fill:max(500px;default):grow"), }));
+    content.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow"), FormFactory.RELATED_GAP_COLSPEC,
+        ColumnSpec.decode("right:270px"), }, new RowSpec[] { RowSpec.decode("fill:max(500px;default):grow"), }));
     getContentPane().add(content, "1, 2, fill, fill");
 
     JPanel mainPanel = new JPanel();
-    mainPanel.setLayout(
-        new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow") }, new RowSpec[] { RowSpec.decode("fill:max(500px;default):grow") }));
+    mainPanel.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow") }, new RowSpec[] { RowSpec
+        .decode("fill:max(500px;default):grow") }));
     content.add(mainPanel, "1, 1, 3, 1, fill, fill");
     content.setLayer(mainPanel, 1);
 
-    JTabbedPane tabbedPane = VerticalTextIcon.createTabbedPane(JTabbedPane.LEFT);
-    tabbedPane.setTabPlacement(JTabbedPane.LEFT);
-    mainPanel.add(tabbedPane, "1, 1, fill, fill");
-    // getContentPane().add(tabbedPane, "1, 2, fill, fill");
+    { // SIDE TABS
 
-    panelStatusBar = new StatusBar();
-    getContentPane().add(panelStatusBar, "1, 4");
+      JTabbedPane tabbedPane = VerticalTextIcon.createTabbedPane(JTabbedPane.LEFT);
+      tabbedPane.setTabPlacement(JTabbedPane.LEFT);
+      mainPanel.add(tabbedPane, "1, 1, fill, fill");
+      // getContentPane().add(tabbedPane, "1, 2, fill, fill");
 
-    panelMovies = new MoviePanel();
-    VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.movies"), panelMovies); //$NON-NLS-1$
+      panelStatusBar = new StatusBar();
+      getContentPane().add(panelStatusBar, "1, 4");
 
-    panelMovieSets = new MovieSetPanel();
-    VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.moviesets"), panelMovieSets); //$NON-NLS-1$
+      panelMovies = new MoviePanel();
+      VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.movies"), panelMovies); //$NON-NLS-1$
+      panelMovieSets = new MovieSetPanel();
+      VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.moviesets"), panelMovieSets); //$NON-NLS-1$
+      panelTvShows = new TvShowPanel();
+      VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.tvshows"), panelTvShows); //$NON-NLS-1$
+      
+      panelCollection = new CollectionPanel();
+      VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.collection"), panelCollection); //$NON-NLS-1$
 
-    panelTvShows = new TvShowPanel();
-    VerticalTextIcon.addTab(tabbedPane, BUNDLE.getString("tmm.tvshows"), panelTvShows); //$NON-NLS-1$
+      // shutdown listener - to clean database connections safely
+      addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+          closeTmm();
+        }
+      });
 
-    // shutdown listener - to clean database connections safely
-    addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(WindowEvent e) {
-        closeTmm();
-      }
-    });
+    }
 
     MessageManager.instance.addListener(TmmUIMessageCollector.instance);
 

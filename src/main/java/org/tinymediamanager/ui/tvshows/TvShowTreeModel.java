@@ -168,18 +168,49 @@ public class TvShowTreeModel implements TreeModel {
      * |    *
      * |    * for ( DomainObjectA item : listItems )
      * |    * {
-     * |    *   //If the node does not exist
-     * |    *   if ( null == (TvShowSeasonTreeNode) nodeMap.get(season) ){
-     * |    *       nodeMap.put( tvShow, tvShowNode );
-     * |    *   }
+     * |    *   //If DomainObjectA items are GROUPS (FYI: We're still in our calling-object [ex:TvShow])
+     * |    *   if ( item.isGroup() )
+     * |    *   {
+     * |    *       //If the node does not exist
+     * |    *       if ( null == (GroupNode) nodeMap.get( item )){
+     * |    *       DefaultMutableTreeNode nodeItem = new GroupNode( item );
+     * |    *       treeModel.put( item, nodeItem );
      * |    *   
-     * |    *   List< DomainObjectB > listSubItems = DomainObjectA.getSubItems();
-     * |    *   | 
-     * |    *   |   * for ( DomainObjectA item : listItems )
-     * |    *   |   * {
-     * |    *   |   *   //If DomainObjectA.items are GROUPS
-     * |    *   |   *   if ( item.isGroup() )
-     * |    *   |   *   {
+     * |    *       List< DomainObjectB > listSubItems = DomainObjectA.getSubItems();
+     * |    *       | 
+     * |    *       |   * for ( DomainObjectB item : listItems ) (branches)
+     * |    *       |   * {
+     * |    *       |   *   nodeMap.put( tvShow, tvShowNode );
+     * |    *       |   *
+     * |    *       |   *   //If DomainObjectB.items are GROUPS
+     * |    *       |   *   if ( item.isGroup() )
+     * |    *       |   *   {
+     * |    *       |   *       item.getSubItems();
+     * |    *       |   *       // ...
+     * |    *       |   *       // ...
+     * |    *       |   *       // ...
+     * |    *       |   *   }
+     * |    *       |   *   //If DomainObjectB.items are NOT Groups (leaves)
+     * |    *       |   *   else
+     * |    *       |   *   {
+     * |    *       |   *   
+     * |    *       |   *   
+     * |    *       |   *   
+     * |    *       |   *   
+     * |    *       |   *   
+     * |    *       |   *   }
+     * |    *       |   * }
+     * |    * }
+     * |    *   
+     * |    *  
+     * |    *   
+     * |    *  
+     * |    *   
+     * |    *  
+     * |    *   
+     * |    *  
+     * |    *   
+     * |    *  
      * |    *   
      * |    *   
      * |    *   //Branches are ALWAYS containers for more nodes.

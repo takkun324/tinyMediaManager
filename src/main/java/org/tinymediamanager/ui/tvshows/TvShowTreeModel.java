@@ -161,55 +161,59 @@ public class TvShowTreeModel implements TreeModel {
      * GROUP         > GROUP         > ITEM
      * TvShows       > Seasons       > Episodes
      *
+     * @TODO Custom JTree Sorting
+     * Note: Node Sorting - https://community.oracle.com/thread/1356694?start=0&tstart=0
+     *  The "column" or "data/String" can be assigned to the domain-object itself. Then the Node(s) take it & sort with it from there.
+     *
      * DomainObjectA.getTreeModel( root ); //GET THE ENTIRE TREE OF THE NODE'S TYPE (EX: Tree of all TvShow objects)  
      * |    
-     * |    * TreeModel             treeModel  = new TreeModel();
-     * |    * List< DomainObjectA > listItems = this.getItems(); //List of items representing itself. (ex: TvShows)
-     * |    *
-     * |    * for ( DomainObjectA item : listItems )
-     * |    * {
-     * |    *   //If DomainObjectA items are GROUPS (FYI: We're still in our calling-object [ex:TvShow])
-     * |    *   if ( item.isGroup() )
-     * |    *   {
-     * |    *       //If the node does not exist
-     * |    *       if ( null == (GroupNode) nodeMap.get( item )){
-     * |    *       DefaultMutableTreeNode nodeItem = new GroupNode( item );
-     * |    *       treeModel.put( item, nodeItem );
-     * |    *   
-     * |    *       List< DomainObjectB > listSubItems = DomainObjectA.getSubItems();
-     * |    *       | 
-     * |    *       |   * for ( DomainObjectB item : listItems ) (branches)
-     * |    *       |   * {
-     * |    *       |   *   nodeMap.put( tvShow, tvShowNode );
-     * |    *       |   *
-     * |    *       |   *   //If DomainObjectB.items are GROUPS
-     * |    *       |   *   if ( item.isGroup() )
-     * |    *       |   *   {
-     * |    *       |   *       item.getSubItems();
-     * |    *       |   *       // ...
-     * |    *       |   *       // ...
-     * |    *       |   *       // ...
-     * |    *       |   *   }
-     * |    *       |   *   //If DomainObjectB.items are NOT Groups (leaves)
-     * |    *       |   *   else
-     * |    *       |   *   {
-     * |    *       |   *   
-     * |    *       |   *   
-     * |    *       |   *   
-     * |    *       |   *   
-     * |    *       |   *   
-     * |    *       |   *   }
-     * |    *       |   * }
-     * |    * }
-     * |    *   
-     * |    *  
-     * |    *   
-     * |    *  
-     * |    *   
-     * |    *  
-     * |    *   
-     * |    *  
-     * |    *   
+     * |    * TreeModel             model  = new TreeModel();
+     * |    * List< DomainObjectA > listItems = this.getItems( model, null ); //List of items representing itself. (ex: TvShows)
+     * |    * |     *
+     * |    * |     * //==========================================
+     * |    * |     * // DomainObject.getItems( TreeModel model )     
+     * |    * |     * //==========================================
+     * |    * |     *
+     * |    * |     * for ( DomainObjectA item : listItems ) (branches)
+     * |    * |     * {
+     * |    * |     *   //If the node does not exist
+     * |    * |     *   if ( null == (GroupNode) nodeMap.get( item )){
+     * |    * |     *
+     * |    * |     *       DefaultMutableTreeNode nodeItem = new GroupNode( item );
+     * |    * |     *       model.put( item, nodeItem );
+     * |    * |     *   }
+     * |    * |     *
+     * |    * |     *   //If DomainObjectA items are GROUPS (FYI: We're still in our calling-object [ex:TvShow])
+     * |    * |     *   if ( item.isGroup() )
+     * |    * |     *   {
+     * |    * |     *        
+     * |    * |     *       List< DomainObjectB > listSubItems = item.getSubItems( model, item == parent );       // DomainObjectA implements TmmTreeModel{ getSubItems(), isGroup=false, }
+     * |    * |     *       |   * 
+     * |    * |     *       |   * //==================================================================
+     * |    * |     *       |   * // DomainObject.getSubItems( TreeModel model, DomainObjectA parent )     
+     * |    * |     *       |   * //==================================================================
+     * |    * |     *       |   *
+     * |    * |     *       |   * List< DomainObjectA > listItems = this.getItems(); //List of items representing itself. (ex: TvShows)
+     * |    * |     *       |   * 
+     * |    * |     *       |   * 
+     * |    * |     *       |   * 
+     * |    * |     *       |   * 
+     * |    * |     *       |   * 
+     * |    * |     *       |   * for ( DomainObjectB item : listItems ) (branches)
+     * |    * |     *       |   * {
+     * |    * |     *       |   *   ...calling the same generic FOR-LOOP as the previous one.
+     * |    * |     *       |   * }
+     * |    * |     *   }
+     * |    * |     *   //Else "item" is a child-less leaf
+     * |    * |     *   else {
+     * |    * |     *       
+     * |    * |     *   
+     * |    * |     *  
+     * |    * |     *   
+     * |    * |     *  
+     * |    * |     *   
+     * |    * |     *  
+     * |    * |     *   
      * |    *  
      * |    *   
      * |    *   
